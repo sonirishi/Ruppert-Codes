@@ -292,7 +292,7 @@ mtfit <- function(series){
     
     mean <- par[1:4]
     A <- matrix(c(par[5],par[6],par[7],par[8],0,par[9],par[10],par[11],0,0,par[12],
-                  par[13],0,0,0,par[14]),nrow=4,byrow=T)
+                  par[13],0,0,0,par[14]),nrow=4,byrow=T)  ### upper triangular matrix
     
     covar <- t(A)%*%A
     
