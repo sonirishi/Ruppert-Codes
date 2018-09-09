@@ -1,2 +1,2 @@
 # Ruppert-Codes
-Part Time Practice
+Practice to become a quant
