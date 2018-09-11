@@ -1,3 +1,5 @@
+rm(list=ls(all=T))
+
 library(fGarch)
 library(dplyr)
 
@@ -98,3 +100,41 @@ aparchmodel_t@fit$se.coef  ### Std Error of coefficients
 
 aparchmodel_t@fit$matcoef
 
+##############
+
+nelsonplosser <- read.csv("nelsonplosser.csv")
+
+final_data <- nelsonplosser %>% filter(!is.na(bnd)) %>% select(sp,ip,bnd)
+  
+final_data <- final_data %>% mutate(logsp = log(sp),logip = log(ip)) %>%
+  mutate(laglogsp = lag(logsp),laglogip = lag(logip), lagbnd = lag(bnd)) %>% 
+  mutate(target = logsp -laglogsp, x1 = logip - laglogip, x2 = bnd - lagbnd)
+
+final_data <- final_data[-1,]
+
+lm_model <- lm(target~x1+x2,final_data)
+
+summary(lm_model)
+
+acf(lm_model$residuals)
+
+acf(lm_model$residuals^2)
+
+ts_residual <- auto.arima(lm_model$residuals)  ## ARIMA(1,0,1)
+
+garch_model <- garchFit(formula = ~arma(0,1) + garch(1,1),data = lm_model$residuals)
+
+garch_model@fit$coef
+
+acf(garch_model@residuals/garch_model@sigma.t)
+
+std_res <- garch_model@residuals/garch_model@sigma.t
+
+qqnorm(std_res,datax = T)
+qqline(std_res,datax = T)
+
+new_lm_model <- lm(target~x1+x2,final_data,weights = 1/garch_model@sigma.t^2)  ## reciiprocal of conditional variance as wts
+
+summary(new_lm_model)
+
+acf(new_lm_model$residuals)
