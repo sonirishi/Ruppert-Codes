@@ -55,3 +55,68 @@ tseries::adf.test(stud_residual_price)
 tseries::kpss.test(stud_residual_price)
 
 Box.test(stud_residual_price)  ## Default test  independence hypo rejected
+
+########### AR(1)
+
+error1 <- rnorm(1000,0,1)
+
+error2 <- rnorm(1000,0,1)
+
+y <- rep(0,1000)
+x <- rep(0,1000)
+
+y[1] <- 0.5; x[1] <- 0.5
+
+for(i in 2:1000){
+  y[i] <- 0.99*y[i-1] + error1[i]
+  x[i] <- 0.99*x[i-1] + error2[i]
+}
+
+model1 <- lm(y~x)
+
+summary(model1)
+
+# Coefficients:
+# (Intercept)  2.65998    0.25607  10.388  < 2e-16 ***
+#  x            0.14407    0.03577   4.028 6.06e-05 ***
+
+error1 <- rnorm(1000,0,1)
+
+error2 <- rnorm(1000,0,1)
+
+y <- rep(0,1000)
+x <- rep(0,1000)
+
+y[1] <- 0.5; x[1] <- 0.5
+
+for(i in 2:1000){
+  y[i] <- 0.99*y[i-1] + error1[i]
+  x[i] <- 0.99*x[i-1] + error2[i]
+}
+
+model1 <- lm(y~x)
+
+summary(model1)
+
+# Coefficients:
+# (Intercept)  1.26782    0.19599   6.469 1.54e-10 ***
+#  x           -0.18129    0.02481  -7.308 5.55e-13 ***
+
+model2 <- lm(diff(y)~diff(x))
+
+summary(model2)  ### not significant  This is again due to trending kind of concept in time series
+
+########
+
+library(AER)
+
+data("CPS1988")
+
+fitlm1 <- lm(wage~education+experience+ethnicity,data=CPS1988)
+
+resid1 <- rstudent(fitlm1)
+
+plot(fitlm1$fitted.values,resid1)
+
+plot(fitlm1$fitted.values,abs(resid1))
+lines(lowess(fitlm1$fitted.values,abs(resid1)),col="red")
