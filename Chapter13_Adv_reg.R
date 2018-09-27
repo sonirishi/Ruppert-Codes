@@ -118,5 +118,62 @@ resid1 <- rstudent(fitlm1)
 
 plot(fitlm1$fitted.values,resid1)
 
+plot(density(resid1))
+
 plot(fitlm1$fitted.values,abs(resid1))
-lines(lowess(fitlm1$fitted.values,abs(resid1)),col="red")
+lines(lowess(fitlm1$fitted.values,abs(resid1)),col="red")  ## not much bad variance
+
+qqnorm(resid1,datax = T)
+qqline(resid1,datax = T)   # not normal
+
+fitlm1 <- lm(log(wage)~education+experience+ethnicity,data=CPS1988)
+
+resid1 <- rstudent(fitlm1)
+
+plot(fitlm1$fitted.values,resid1)
+
+plot(density(resid1))
+
+plot(fitlm1$fitted.values,abs(resid1))
+lines(lowess(fitlm1$fitted.values,abs(resid1)),col="red")  ## not much bad variance
+
+qqnorm(resid1,datax = T)
+qqline(resid1,datax = T)   # not normal
+
+########## Test residuals random forest
+
+library(randomForest)
+
+model2 <- randomForest(aaa_diff~cm30_diff+cm10_diff+ff_diff,data=dat[-1,],ntree=30)
+
+lm_model <- lm(aaa_diff~cm30_diff+cm10_diff+ff_diff,data=dat[-1,])
+
+X <- as.matrix(dat[-1,c("cm30_diff","cm10_diff","ff_diff")])
+
+Y <- matrix(dat[-1,"aaa_diff"])
+
+hat_actual <- lm.influence(lm_model)
+
+hat_new <- hat_actual$hat
+
+ypredict <- model2$predicted
+
+rf_residual <- Y-ypredict
+
+#########
+
+fitlm1 <- lm(sqrt(wage)~education+experience+ethnicity,data=CPS1988)
+
+resid1 <- rstudent(fitlm1)
+
+plot(fitlm1$fitted.values,resid1)
+
+plot(density(resid1))
+
+plot(fitlm1$fitted.values,abs(resid1))
+lines(lowess(fitlm1$fitted.values,abs(resid1)),col="red")  ## not much bad variance
+
+qqnorm(resid1,datax = T)
+qqline(resid1,datax = T)   # not normal
+
+
