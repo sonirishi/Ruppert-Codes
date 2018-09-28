@@ -38,3 +38,15 @@ model_2 <- lm(cons~conslag,data=data_1)
 
 ### xreg basically is linear regression but with ARMA errors. 
 # Lagged dependent variable seems equivalent to ARIMAX
+
+phi <- 0.5
+
+X <- seq(-10,10,1)
+
+sigma_mat <- toeplitz(phi^(0:20))
+
+XprimeXinv <- solve(t(X)%*%X)
+
+CovB <- XprimeXinv%*%t(X)%*%sigma_mat%*%X%*%XprimeXinv
+
+ratio_SE <- sqrt(CovB)/sqrt(XprimeXinv)
